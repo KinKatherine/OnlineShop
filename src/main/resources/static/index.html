@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuySell Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .product-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .product-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .product-title {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .product-description {
+            margin: 5px 0;
+        }
+        .product-details {
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<h1 id="greeting"></h1>
+<ul class="product-list" id="product-list"></ul>
+
+<script>
+    // Функция для получения данных из API
+    async function fetchData() {
+        try {
+            const response = await fetch('http://localhost:8080/');
+            const data = await response.json();
+
+            // Отображение приветственного сообщения
+            document.getElementById('greeting').innerText = data.message;
+
+            // Отображение списка продуктов
+            const productList = document.getElementById('product-list');
+            data.products.forEach(product => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('product-item');
+
+                // Добавляем заголовок продукта
+                const title = document.createElement('div');
+                title.classList.add('product-title');
+                title.innerText = product.title; // Используем поле title
+                listItem.appendChild(title);
+
+                // Добавляем описание продукта
+                const description = document.createElement('div');
+                description.classList.add('product-description');
+                description.innerText = product.description; // Используем поле description
+                listItem.appendChild(description);
+
+                // Добавляем детали продукта
+                const details = document.createElement('div');
+                details.classList.add('product-details');
+                details.innerText = `Цена: ${product.price} руб. | Город: ${product.city} | Автор: ${product.author}`;
+                listItem.appendChild(details);
+
+                productList.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    // Вызов функции для получения данных при загрузке страницы
+    window.onload = fetchData;
+</script>
+</body>
+</html>
