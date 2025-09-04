@@ -3,6 +3,8 @@ package com.example.buysellProject.controllers;
 import com.example.buysellProject.models.Product;
 import com.example.buysellProject.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -11,10 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping("/api")
+    @GetMapping()
     public Map<String, Object> greeting() {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Добро пожаловать в интернет-магазин.");
@@ -35,14 +38,20 @@ public class ProductController {
         return response;
     }
 
-    // Добавьте метод для удаления
     @DeleteMapping("/product/delete/{id}")
-    public Map<String, Object> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-
+    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", "Продукт удален");
-        return response;
+
+        boolean wasDeleted = productService.deleteProduct(id);
+
+        if (wasDeleted) {
+            response.put("status", "success");
+            response.put("message", "Продукт удален");
+            return ResponseEntity.ok(response); // 200 OK
+        } else {
+            response.put("status", "error");
+            response.put("message", "Продукт с ID " + id + " не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404 Not Found
+        }
     }
 }

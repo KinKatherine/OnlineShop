@@ -26,7 +26,9 @@ public class ProductService {
         products.add(product);
     }
 
-    public void deleteProduct(Long id){
+    public boolean deleteProduct(Long id) {
+        int initialSize = products.size(); // Запоминаем размер до удаления
         products.removeIf(product -> product.getId().equals(id));
+        return products.size() < initialSize; // Вернет true если что-то удалили
     }
 }
