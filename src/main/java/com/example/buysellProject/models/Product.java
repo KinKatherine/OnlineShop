@@ -2,10 +2,12 @@ package com.example.buysellProject.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-//как я понимаю это часть со всеми продуктами
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+
 public class Product {
     private Long id;
     private String title;
