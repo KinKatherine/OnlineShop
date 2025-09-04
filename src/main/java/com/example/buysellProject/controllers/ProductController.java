@@ -18,13 +18,29 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping()
-    public Map<String, Object> greeting() {
+    public Map<String, Object> takeAllProductsInfo(@RequestParam(name = "title", required = false) String title) {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Добро пожаловать в интернет-магазин.");
         response.put("status", "success");
         response.put("timestamp", LocalDateTime.now());
-        response.put("products", productService.takeProductList());
+        response.put("products", productService.findAllProducts(title));
         return response;
+    }
+
+    @GetMapping("/product/{id}")
+    public ResponseEntity<Map<String, Object>> takeProductInfo(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        Product product = productService.getProductById(id);
+
+        if (product != null) {
+            response.put("status", "success");
+            response.put("product", product);
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("status", "error");
+            response.put("message", "Продукт с ID " + id + " не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
     @PostMapping("/product/create")
@@ -42,16 +58,24 @@ public class ProductController {
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        boolean wasDeleted = productService.deleteProduct(id);
+        try {
+            Product product = productService.getProductById(id);
 
-        if (wasDeleted) {
-            response.put("status", "success");
-            response.put("message", "Продукт удален");
-            return ResponseEntity.ok(response); // 200 OK
-        } else {
+            if (product != null) {
+                productService.deleteProduct(id);
+                response.put("status", "success");
+                response.put("message", "Продукт удален");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "error");
+                response.put("message", "Продукт с ID " + id + " не найден");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+        } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Продукт с ID " + id + " не найден");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404 Not Found
+            response.put("message", "Ошибка сервера при удалении: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

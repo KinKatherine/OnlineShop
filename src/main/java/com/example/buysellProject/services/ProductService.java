@@ -1,34 +1,34 @@
 package com.example.buysellProject.services;
 
 import com.example.buysellProject.models.Product;
+import com.example.buysellProject.repositories.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ProductService {
-    private List<Product> products = new ArrayList<>();
-    private long ID = 0;
 
+    private final ProductRepository productRepository;
 
-    {
-        products.add(new Product(++ID,"PlayStation","Simple description",67000,"Minsk","Tomas"));
-        products.add(new Product(++ID,"Iphone 8","Simple description",24000,"Moscow","Nikita"));
-    }
-
-    public List<Product> takeProductList(){
-        return products;
+    public List<Product> findAllProducts(String title){
+        return (title!=null? productRepository.findByTitleContainingIgnoreCase(title):productRepository.findAll());
     }
 
     public void saveProduct(Product product){
-        product.setId(++ID);
-        products.add(product);
+        log.info("Saving new {}",product);
+        productRepository.save(product);
     }
 
-    public boolean deleteProduct(Long id) {
-        int initialSize = products.size(); // Запоминаем размер до удаления
-        products.removeIf(product -> product.getId().equals(id));
-        return products.size() < initialSize; // Вернет true если что-то удалили
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
     }
 }
