@@ -29,7 +29,7 @@ public class Product {
     @Column(name = "author")
     private String author;
 
-    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "product")
+    @OneToOne(cascade = CascadeType.ALL,mappedBy = "product")
     private Image image;
 
     private LocalDateTime dateOfCreated;

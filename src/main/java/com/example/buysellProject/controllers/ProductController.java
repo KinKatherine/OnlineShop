@@ -1,5 +1,6 @@
 package com.example.buysellProject.controllers;
 
+import com.example.buysellProject.dto.ProductDTO;
 import com.example.buysellProject.models.Product;
 import com.example.buysellProject.services.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +30,11 @@ public class ProductController {
     @GetMapping("/product/{id}")
     public ResponseEntity<Map<String, Object>> takeProductInfo(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Product product = productService.getProductById(id);
+        ProductDTO productDTO = productService.getProductById(id);
 
-        if (product != null) {
+        if (productDTO != null) {
             response.put("status", "success");
-            response.put("product", product);
+            response.put("product", productDTO);
             return ResponseEntity.ok(response);
         } else {
             response.put("status", "error");
@@ -73,9 +73,9 @@ public class ProductController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Product product = productService.getProductById(id);
+            ProductDTO productDTO = productService.getProductById(id);
 
-            if (product != null) {
+            if (productDTO != null) {
                 productService.deleteProduct(id);
                 response.put("status", "success");
                 response.put("message", "Продукт удален");

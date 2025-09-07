@@ -34,6 +34,6 @@ public class Image {
 
     @OneToOne
     @JoinColumn(name = "product_id")
-    @JsonIgnore// Игнорируем поле при сериализации
+    //@JsonIgnore// Игнорируем поле при сериализации
     private Product product;
 }

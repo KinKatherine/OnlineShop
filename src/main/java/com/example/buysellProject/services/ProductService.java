@@ -1,5 +1,7 @@
 package com.example.buysellProject.services;
 
+import com.example.buysellProject.dto.ProductDTO;
+import com.example.buysellProject.mappers.ProductMapper;
 import com.example.buysellProject.models.Image;
 import com.example.buysellProject.models.Product;
 import com.example.buysellProject.repositories.ImageRepository;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,12 +22,18 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
     private final ImageRepository imageRepository;
 
-    public List<Product> findAllProducts(String title) {
+    public List<ProductDTO> findAllProducts(String title) {
 
         List<Product> productList = (title != null ? productRepository.findByTitleContainingIgnoreCase(title) : productRepository.findAll());
-        return productList;
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for (Product i:productList)
+        {
+            productDTOList.add(productMapper.toDTO(i));
+        }
+        return productDTOList;
     }
 
     public void saveProduct(Product product, MultipartFile file) throws IOException {
@@ -57,7 +66,9 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
+    public ProductDTO getProductById(Long id) {
+        Product product =  productRepository.findById(id).orElse(null);
+        if (product!=null) return productMapper.toDTO(product);
+        return null;
     }
 }
