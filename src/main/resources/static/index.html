@@ -190,6 +190,10 @@
             box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.1);
         }
 
+        .file-input {
+            padding: 8px;
+        }
+
         .btn-submit {
             background: #4b6cb7;
             color: white;
@@ -297,7 +301,7 @@
     </header>
 
     <div class="dashboard">
-        <!-- Список товаров -->
+
         <div class="card products-section">
             <div class="section-title">
                 <h2><i class="fas fa-list"></i> Список товаров</h2>
@@ -321,7 +325,6 @@
             </div>
         </div>
 
-        <!-- Детали товара -->
         <div class="card">
             <div class="section-title">
                 <h2><i class="fas fa-info-circle"></i> Детали товара</h2>
@@ -334,7 +337,6 @@
             </div>
         </div>
 
-        <!-- Форма добавления товара -->
         <div class="card">
             <div class="section-title">
                 <h2><i class="fas fa-plus-circle"></i> Добавить новый товар</h2>
@@ -360,6 +362,13 @@
                     <label for="author">Автор</label>
                     <input type="text" id="author" class="form-control">
                 </div>
+
+                <!-- Только одно поле для загрузки файла -->
+                <div class="form-group">
+                    <label for="file">Изображение *</label>
+                    <input type="file" id="file" class="form-control file-input" accept="image/*" required>
+                </div>
+
                 <button type="submit" class="btn btn-submit">
                     <i class="fas fa-save"></i> Создать товар
                 </button>
@@ -496,50 +505,50 @@
     }
 
     // Создание товара
-    async function createProduct() {
-        const product = {
-            title: document.getElementById('title').value,
-            description: document.getElementById('description').value,
-            price: parseFloat(document.getElementById('price').value),
-            city: document.getElementById('city').value,
-            author: document.getElementById('author').value
-        };
+async function createProduct() {
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const price = document.getElementById('price').value;
+    const city = document.getElementById('city').value;
+    const author = document.getElementById('author').value;
+    const fileInput = document.getElementById('file'); // Изменили на 'file'
 
-        if (!product.title || !product.price) {
-            showNotification('Заполните обязательные поля (название и цена)', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/product/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(product)
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                showNotification('✅ Товар успешно создан!');
-                // Очищаем форму
-                document.getElementById('product-form').reset();
-                // Обновляем список
-                loadProducts();
-            } else {
-                showNotification('❌ Ошибка: ' + result.message, 'error');
-            }
-        } catch (error) {
-            showNotification('Ошибка создания товара: ' + error.message, 'error');
-        }
+    if (!title || !price || !fileInput.files[0]) {
+        showNotification('Заполните обязательные поля (название, цена и изображение)', 'error');
+        return;
     }
 
-    // Удаление товара
-     async function deleteProduct(id) {
+    try {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]); // Изменили на 'file'
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('price', price);
+        formData.append('city', city);
+        formData.append('author', author);
 
-        //if (!confirm(`Вы уверены, что хотите удалить товар ID ${id}?`))
-        // return;
+        const response = await fetch('/api/product/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            showNotification('✅ Товар успешно создан!');
+            document.getElementById('product-form').reset();
+            loadProducts();
+        } else {
+            showNotification('❌ Ошибка: ' + result.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Ошибка создания товара: ' + error.message, 'error');
+    }
+}
+
+    // Удаление товара
+    async function deleteProduct(id) {
+        if (!confirm(`Вы уверены, что хотите удалить товар ID ${id}?`)) return;
 
         try {
             const response = await fetch(`/api/product/delete/${id}`, {
@@ -550,14 +559,12 @@
 
             if (response.ok && result.status === 'success') {
                 showNotification('✅ Товар успешно удален!');
-                // Очищаем детали
                 document.getElementById('details-panel').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-hand-pointer"></i>
                         <p>Выберите товар из списка для просмотра деталей</p>
                     </div>
                 `;
-                // Обновляем список
                 loadProducts();
             } else {
                 showNotification('❌ Ошибка: ' + result.message, 'error');

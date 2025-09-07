@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +22,7 @@ public class ProductController {
     @GetMapping()
     public Map<String, Object> takeAllProductsInfo(@RequestParam(name = "title", required = false) String title) {
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Добро пожаловать в интернет-магазин.");
         response.put("status", "success");
-        response.put("timestamp", LocalDateTime.now());
         response.put("products", productService.findAllProducts(title));
         return response;
     }
@@ -44,8 +44,22 @@ public class ProductController {
     }
 
     @PostMapping("/product/create")
-    public Map<String, Object> createProduct(@RequestBody Product product) {
-        productService.saveProduct(product);
+    public Map<String, Object> createProduct(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("price") int price,
+            @RequestParam("city") String city,
+            @RequestParam("author") String author) throws IOException {
+
+        Product product = new Product();
+        product.setTitle(title);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCity(city);
+        product.setAuthor(author);
+
+        productService.saveProduct(product, file);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");

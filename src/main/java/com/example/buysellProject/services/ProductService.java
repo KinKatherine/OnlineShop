@@ -1,11 +1,16 @@
 package com.example.buysellProject.services;
 
+import com.example.buysellProject.models.Image;
 import com.example.buysellProject.models.Product;
+import com.example.buysellProject.repositories.ImageRepository;
 import com.example.buysellProject.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -14,14 +19,38 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ImageRepository imageRepository;
 
-    public List<Product> findAllProducts(String title){
-        return (title!=null? productRepository.findByTitleContainingIgnoreCase(title):productRepository.findAll());
+    public List<Product> findAllProducts(String title) {
+
+        List<Product> productList = (title != null ? productRepository.findByTitleContainingIgnoreCase(title) : productRepository.findAll());
+        return productList;
     }
 
-    public void saveProduct(Product product){
-        log.info("Saving new {}",product);
-        productRepository.save(product);
+    public void saveProduct(Product product, MultipartFile file) throws IOException {
+
+        Product savedProduct = productRepository.save(product);
+
+        if (file != null && file.getSize() != 0) {
+            Image image = toImageEntity(file);
+            image.setProduct(savedProduct);
+
+            Image savedImage = imageRepository.save(image);
+
+            savedProduct.setImage(savedImage);
+            savedProduct.setDateOfCreated(LocalDateTime.now());
+            productRepository.save(savedProduct);
+        }
+    }
+
+    private Image toImageEntity(MultipartFile file) throws IOException {
+        Image image = new Image();
+        image.setName(file.getName());
+        image.setOriginalFileName(file.getOriginalFilename());
+        image.setContentType(file.getContentType());
+        image.setSize(file.getSize());
+        image.setBytes(file.getBytes());
+        return image;
     }
 
     public void deleteProduct(Long id) {
