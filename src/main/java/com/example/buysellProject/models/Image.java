@@ -1,6 +1,5 @@
 package com.example.buysellProject.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +33,5 @@ public class Image {
 
     @OneToOne
     @JoinColumn(name = "product_id")
-    //@JsonIgnore// Игнорируем поле при сериализации
     private Product product;
 }

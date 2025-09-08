@@ -1,7 +1,6 @@
 package com.example.buysellProject.controllers;
 
 import com.example.buysellProject.dto.ProductDTO;
-import com.example.buysellProject.models.Product;
 import com.example.buysellProject.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,20 +18,23 @@ import java.util.Map;
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping()
-    public Map<String, Object> takeAllProductsInfo(@RequestParam(name = "title", required = false) String title) {
+    @GetMapping("/v1/products")
+    public Map<String, Object> takeAllProductsInfo(@RequestParam(name = "title", required = false) String title)
+    {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("products", productService.findAllProducts(title));
         return response;
     }
 
-    @GetMapping("/product/{id}")
-    public ResponseEntity<Map<String, Object>> takeProductInfo(@PathVariable Long id) {
+    @GetMapping("/v1/products/{id}")
+    public ResponseEntity<Map<String, Object>> takeProductInfo(@PathVariable Long id)
+    {
         Map<String, Object> response = new HashMap<>();
         ProductDTO productDTO = productService.getProductById(id);
 
-        if (productDTO != null) {
+        if (productDTO != null)
+        {
             response.put("status", "success");
             response.put("product", productDTO);
             return ResponseEntity.ok(response);
@@ -43,50 +45,54 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/product/create")
+    @PostMapping("/v1/products/create")
     public Map<String, Object> createProduct(
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("price") int price,
             @RequestParam("city") String city,
-            @RequestParam("author") String author) throws IOException {
+            @RequestParam("author") String author) throws IOException
+    {
 
-        Product product = new Product();
-        product.setTitle(title);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setCity(city);
-        product.setAuthor(author);
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setTitle(title);
+        productDTO.setDescription(description);
+        productDTO.setPrice(price);
+        productDTO.setCity(city);
+        productDTO.setAuthor(author);
 
-        productService.saveProduct(product, file);
+        productDTO.setId(productService.saveProduct(productDTO, file).getId());
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", "Продукт успешно создан");
-        response.put("product", product);
+        response.put("message", "Продукт c id " +productDTO.getId()+ " успешно создан");
         return response;
     }
 
-    @DeleteMapping("/product/delete/{id}")
-    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
+    @DeleteMapping("/v1/products/delete/{id}")
+    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id)
+    {
         Map<String, Object> response = new HashMap<>();
 
         try {
             ProductDTO productDTO = productService.getProductById(id);
 
-            if (productDTO != null) {
+            if (productDTO != null)
+            {
                 productService.deleteProduct(id);
                 response.put("status", "success");
                 response.put("message", "Продукт удален");
                 return ResponseEntity.ok(response);
-            } else {
+            } else
+            {
                 response.put("status", "error");
                 response.put("message", "Продукт с ID " + id + " не найден");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             response.put("status", "error");
             response.put("message", "Ошибка сервера при удалении: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

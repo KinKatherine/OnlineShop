@@ -36,9 +36,9 @@ public class ProductService {
         return productDTOList;
     }
 
-    public void saveProduct(Product product, MultipartFile file) throws IOException {
+    public Product saveProduct(ProductDTO product, MultipartFile file) throws IOException {
 
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct = productRepository.save(productMapper.fromDTO(product));
 
         if (file != null && file.getSize() != 0) {
             Image image = toImageEntity(file);
@@ -50,6 +50,7 @@ public class ProductService {
             savedProduct.setDateOfCreated(LocalDateTime.now());
             productRepository.save(savedProduct);
         }
+        return savedProduct;
     }
 
     private Image toImageEntity(MultipartFile file) throws IOException {

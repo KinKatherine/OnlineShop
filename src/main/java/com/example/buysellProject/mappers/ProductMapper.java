@@ -17,13 +17,25 @@ public class ProductMapper {
         dto.setPrice(product.getPrice());
         dto.setCity(product.getCity());
         dto.setAuthor(product.getAuthor());
-        dto.setDateOfCreated(product.getDateOfCreated());
+        //dto.setDateOfCreated(product.getDateOfCreated());
 
         if (product.getImage() != null) {
             dto.setImage(toImageDTO(product.getImage()));
         }
 
         return dto;
+    }
+
+    public Product fromDTO(ProductDTO productDTO){
+        Product product = new Product();
+        product.setTitle(productDTO.getTitle());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setCity(productDTO.getCity());
+        product.setAuthor(productDTO.getAuthor());
+        //product.setDateOfCreated(productDTO.getDateOfCreated());
+        return product;
+
     }
 
     private ImageDTO toImageDTO(Image image) {

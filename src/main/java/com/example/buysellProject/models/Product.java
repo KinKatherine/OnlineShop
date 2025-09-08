@@ -2,6 +2,7 @@ package com.example.buysellProject.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table (name = "products")
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,9 +35,4 @@ public class Product {
     private Image image;
 
     private LocalDateTime dateOfCreated;
-
-    public void addImageToProduct(Image image){
-        image.setProduct(this);
-        this.image = image;
-    }
 }
